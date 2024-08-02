@@ -1,0 +1,27 @@
+name: Build for ARM64
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Cross Compile 
+        run: |
+             docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+             docker run --rm -v $(pwd):/workspace -w /workspace --platform linux/arm64 debian:latest /bin/bash -c "apt update && apt install -y gcc make libcairo2-dev libwayland-dev libpango1.0-dev libxkbcommon-dev && make"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: wvkbd-mobintl
+          path: ./wvkbd-mobintl
+          
