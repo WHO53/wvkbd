@@ -47,6 +47,7 @@ static struct wp_fractional_scale_manager_v1 *wfs_mgr;
 static struct wp_viewport *draw_surf_viewport, *popup_draw_surf_viewport;
 static struct wp_viewporter *viewporter;
 static bool popup_xdg_surface_configured;
+static struct zwp_input_method_manager_v2 *im_mgr;
 
 struct Output {
     uint32_t name;
@@ -492,6 +493,11 @@ handle_global(void *data, struct wl_registry *registry, uint32_t name,
                       zwp_virtual_keyboard_manager_v1_interface.name) == 0) {
         vkbd_mgr = wl_registry_bind(
             registry, name, &zwp_virtual_keyboard_manager_v1_interface, 1);
+    } else if (strcmp(interface,
+                      zwp_input_method_manager_v2_interface.name) == 0) {
+        im_mgr = wl_registry_bind(registry, name, &zwp_input_method_manager_v2_interface, 1);
+    }
+                      )) {
     }
 }
 
@@ -1030,6 +1036,10 @@ main(int argc, char **argv)
     if (vkbd_mgr == NULL) {
         die("virtual_keyboard_manager not available\n");
     }
+    if (im_mgr == NULL) {
+        die("input_method_manager not available\n");
+    }
+    
 
     empty_region = wl_compositor_create_region(compositor);
     popup_xdg_positioner = xdg_wm_base_create_positioner(wm_base);
@@ -1039,6 +1049,11 @@ main(int argc, char **argv)
     if (keyboard.vkbd == NULL) {
         die("failed to init virtual keyboard_manager\n");
     }
+
+    keyboard.im =
+        zwp_input_method_manager_v2_get_input_method(im_mgr, seat);
+    if (keyboard.im == NULL) {
+        die("failed to init input manager\n");
 
     kbd_init(&keyboard, (struct layout *)&layouts, layer_names_list,
              landscape_layer_names_list);
