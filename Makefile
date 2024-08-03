@@ -5,7 +5,7 @@ BIN=${NAME}-${LAYOUT}
 SRC=.
 MAN1 = ${NAME}.1
 
-PKGS = wayland-client xkbcommon pangocairo
+PKGS = wayland-client xkbcommon pangocairo glib-2.0 gio-unix-2.0
 
 WVKBD_SOURCES += $(wildcard $(SRC)/*.c)
 WVKBD_HEADERS += $(wildcard $(SRC)/*.h)
